@@ -53,13 +53,15 @@ uint8_t parse_byte() {
 void parse_img() {
     int c;
     while (1) {
-        c=getchar();
+        c = getchar();
         if (c == ' ' || c == '\r' || c == '\n' || c == '\t')
             continue;
         break;
     }
 
-    fseek(stdin, HEADER_SIZE * 2 - 1, SEEK_CUR);
+    size_t h = 2 * HEADER_SIZE - 1;
+    while (h--)
+        getchar();
 
     /* int cnt = 0; */
     /* for (int i = 0; i < IMG_SIDE; ++i) { */
@@ -138,7 +140,6 @@ bool is_real_rect(const rect_t *r) {
 }
 
 int main() {
-    freopen(NULL, "rb", stdin);
     parse_img();
     background = img[0][0];
     for (int y = 0; y < IMG_SIDE; ++y)
