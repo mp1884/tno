@@ -52,8 +52,12 @@ uint8_t parse_byte() {
 
 void parse_img() {
     int c;
-    while (iscntrl((c = getchar())))
-        ;
+    while (1) {
+        c=getchar();
+        if (c == ' ' || c == '\r' || c == '\n' || c == '\t')
+            continue;
+        break;
+    }
 
     fseek(stdin, HEADER_SIZE * 2 - 1, SEEK_CUR);
 
