@@ -27,11 +27,12 @@ typedef struct listnode_t {
     struct listnode_t *next;
 } listnode_t;
 
-#define IMG_SIDE_IN_PIXELS 100
+#define IMG_SIDE 100
 #define HEADER_SIZE 54
 
-listnode_t *rects[IMG_SIDE_IN_PIXELS] = {NULL};
-pixel_t img[IMG_SIDE_IN_PIXELS][IMG_SIDE_IN_PIXELS];
+listnode_t *rects[IMG_SIDE] = {NULL};
+pixel_t img[IMG_SIDE][IMG_SIDE];
+pixel_t background;
 
 uint8_t parse_nibble() {
     int c = getchar();
@@ -57,9 +58,9 @@ void parse_img() {
     fseek(stdin, HEADER_SIZE * 2 - 1, SEEK_CUR);
 
     /* int cnt = 0; */
-    /* for (int i = 0; i < IMG_SIDE_IN_PIXELS; ++i) { */
-    for (int i = IMG_SIDE_IN_PIXELS - 1; i >= 0; --i) {
-        for (int j = 0; j < IMG_SIDE_IN_PIXELS; ++j) {
+    /* for (int i = 0; i < IMG_SIDE; ++i) { */
+    for (int i = IMG_SIDE - 1; i >= 0; --i) {
+        for (int j = 0; j < IMG_SIDE; ++j) {
             img[i][j].b = parse_byte();
             img[i][j].g = parse_byte();
             img[i][j].r = parse_byte();
@@ -74,7 +75,8 @@ void merge_or_add_rect(rect_t r) {
     listnode_t **n = &rects[r.lt.x];
     while (*n != NULL) {
         rect_t *nr = &(*n)->rect;
-        if (nr->size.x == r.size.x && nr->lt.y + nr->size.y == r.lt.y) {
+        if (nr->size.x == r.size.x && nr->lt.y + nr->size.y == r.lt.y
+            && pixel_eq(nr->color, r.color)) {
             ++nr->size.y;
             return;
         }
@@ -90,7 +92,7 @@ void merge_or_add_rect(rect_t r) {
 void update_rects(int y) {
     pixel_t last_pixel = img[y][0];
     rect_t last_rect = {.color = last_pixel, .lt = {0, y}, .size = {0, 1}};
-    for (int x = 0; x < IMG_SIDE_IN_PIXELS; ++x) {
+    for (int x = 0; x < IMG_SIDE; ++x) {
         if (pixel_eq(img[y][x], last_pixel)) {
             ++last_rect.size.x;
         } else {
@@ -103,8 +105,7 @@ void update_rects(int y) {
 }
 
 bool pixel_not_eq(pixel_t p1, vec2_t p2_coord) {
-    if (0 <= p2_coord.x && p2_coord.x < IMG_SIDE_IN_PIXELS && 0 <= p2_coord.y
-        && p2_coord.y < IMG_SIDE_IN_PIXELS)
+    if (0 <= p2_coord.x && p2_coord.x < IMG_SIDE && 0 <= p2_coord.y && p2_coord.y < IMG_SIDE)
         return !pixel_eq(p1, img[p2_coord.y][p2_coord.x]);
     else
         return true;
@@ -121,6 +122,9 @@ bool rect_color_not_eq(rect_t r, pixel_t color) {
 bool is_real_rect(const rect_t *r) {
     int x = r->lt.x, y = r->lt.y, sx = r->size.x, sy = r->size.y;
 
+    if (pixel_eq(r->color, background))
+        return false;
+
 #define CHECK_RECT(_x, _y, _sx, _sy)                                                               \
     rect_color_not_eq((rect_t){.lt = {(_x), (_y)}, .size = {(_sx), (_sy)}}, r->color)
 
@@ -132,15 +136,17 @@ bool is_real_rect(const rect_t *r) {
 int main() {
     freopen(NULL, "rb", stdin);
     parse_img();
-    for (int y = 0; y < IMG_SIDE_IN_PIXELS; ++y)
+    background = img[0][0];
+    for (int y = 0; y < IMG_SIDE; ++y)
         update_rects(y);
 
     int ans = 0;
-    for (int i = 0; i < IMG_SIDE_IN_PIXELS; ++i) {
+    for (int i = 0; i < IMG_SIDE; ++i) {
         int rects_in_col = 0;
         listnode_t *cur = rects[i];
         while (cur != NULL) {
-            if (is_real_rect(&cur->rect))
+            bool ret = is_real_rect(&cur->rect);
+            if (ret)
                 ++rects_in_col;
             cur = cur->next;
         }
