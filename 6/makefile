@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS=-Wall -Wextra -g  -lm
+CFLAGS=-Wall -Wextra -O3  -lm
 LIBPNGFLAGS=-Ilibspng/spng -lz
 LIBPNGSRC=libspng/spng/spng.c
 

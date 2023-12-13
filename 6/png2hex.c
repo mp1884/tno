@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-const size_t IMG_SIDE_IN_PIXELS = 100;
+const size_t IMG_SIDE = 100;
 
 const char HEADER[] = "424d667500000000000036000000280000006400000064000000010018000000000030750000"
                       "00000000000000000000000000000000";
@@ -18,7 +18,7 @@ void png_error(const char *spng_function_name, int ret) {
 
 void png2hex(FILE *png_input, FILE *hex_output) {
     spng_ctx *ctx = spng_ctx_new(0);
-    size_t img_max_size = IMG_SIDE_IN_PIXELS * IMG_SIDE_IN_PIXELS * 3;
+    size_t img_max_size = IMG_SIDE * IMG_SIDE * 3;
     spng_set_chunk_limits(ctx, img_max_size, img_max_size);
 
     spng_set_png_file(ctx, png_input);
@@ -33,9 +33,9 @@ void png2hex(FILE *png_input, FILE *hex_output) {
     if (ret)
         png_error("spng_decoded_image_size", ret);
 
-    if (img_size != IMG_SIDE_IN_PIXELS * IMG_SIDE_IN_PIXELS * 3) {
-        fprintf(stderr, "expected %zux%zu image, found %zu bytes\n", IMG_SIDE_IN_PIXELS,
-                IMG_SIDE_IN_PIXELS, img_size);
+    if (img_size != IMG_SIDE * IMG_SIDE * 3) {
+        fprintf(stderr, "expected %zux%zu image, found %zu bytes\n", IMG_SIDE,
+                IMG_SIDE, img_size);
         exit(1);
     }
 
@@ -46,9 +46,9 @@ void png2hex(FILE *png_input, FILE *hex_output) {
 
     fwrite(HEADER, sizeof HEADER - 1, 1, hex_output);
 
-    for (size_t i = IMG_SIDE_IN_PIXELS - 1; i < IMG_SIDE_IN_PIXELS; --i) {
-        for (size_t j = 0; j < 3 * IMG_SIDE_IN_PIXELS; j += 3) {
-#define PIXEL(offs) img_buf[i * IMG_SIDE_IN_PIXELS * 3 + j + (offs)]
+    for (size_t i = IMG_SIDE - 1; i < IMG_SIDE; --i) {
+        for (size_t j = 0; j < 3 * IMG_SIDE; j += 3) {
+#define PIXEL(offs) img_buf[i * IMG_SIDE * 3 + j + (offs)]
             /* Order of colors in png:  RGB
              * Order of colors for hex: BGR */
             fprintf(hex_output, "%.2x%.2x%.2x", PIXEL(2), PIXEL(1), PIXEL(0));
@@ -87,15 +87,15 @@ void hex2png(FILE *hex_input, FILE *png_output) {
     while (h--)
         fgetc(hex_input);
 
-    const size_t IMG_BUF_SIZE = IMG_SIDE_IN_PIXELS * IMG_SIDE_IN_PIXELS * 3;
+    const size_t IMG_BUF_SIZE = IMG_SIDE * IMG_SIDE * 3;
     uint8_t *img_buf = malloc(IMG_BUF_SIZE);
-    for (size_t i = IMG_SIDE_IN_PIXELS - 1; i + 1 != 0; --i) {
-        for (size_t j = 0; j < 3 * IMG_SIDE_IN_PIXELS; j += 3) {
+    for (size_t i = IMG_SIDE - 1; i + 1 != 0; --i) {
+        for (size_t j = 0; j < 3 * IMG_SIDE; j += 3) {
             /* Order of colors in hex:  BGR
              * Order of colors for png: RGB */
-            img_buf[i * IMG_SIDE_IN_PIXELS * 3 + j + 2] = read_byte(hex_input);
-            img_buf[i * IMG_SIDE_IN_PIXELS * 3 + j + 1] = read_byte(hex_input);
-            img_buf[i * IMG_SIDE_IN_PIXELS * 3 + j + 0] = read_byte(hex_input);
+            img_buf[i * IMG_SIDE * 3 + j + 2] = read_byte(hex_input);
+            img_buf[i * IMG_SIDE * 3 + j + 1] = read_byte(hex_input);
+            img_buf[i * IMG_SIDE * 3 + j + 0] = read_byte(hex_input);
         }
     }
 
@@ -104,7 +104,7 @@ void hex2png(FILE *hex_input, FILE *png_output) {
     spng_set_option(ctx, SPNG_ENCODE_TO_BUFFER, 1);
 
     struct spng_ihdr ihdr = {0};
-    ihdr.width = ihdr.height = IMG_SIDE_IN_PIXELS;
+    ihdr.width = ihdr.height = IMG_SIDE;
     ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR;
     ihdr.bit_depth = 8;
     spng_set_ihdr(ctx, &ihdr);
