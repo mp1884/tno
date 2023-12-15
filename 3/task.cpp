@@ -5,35 +5,27 @@ typedef array<int, 6> decomp;
 
 vector<decomp> ds;
 
-void m_decomps(int m) {
-    for (int i1 = 0; i1 <= 100 / 1; ++i1) {
-        if (i1 * 1 > m)
-            break;
-        for (int i2 = 0; i2 <= 100 / 2; ++i2) {
-            if (i2 * 2 > m)
-                break;
-            for (int i5 = 0; i5 <= 100 / 5; ++i5) {
-                if (i5 * 5 > m)
-                    break;
-                for (int i10 = 0; i10 <= 100 / 10; ++i10) {
-                    if (i10 * 10 > m)
-                        break;
-                    for (int i20 = 0; i20 <= 100 / 20; ++i20) {
-                        if (i20 * 20 > m)
-                            break;
-                        for (int i50 = 0; i50 <= 100 / 50; ++i50) {
-                            if (i50 * 50 > m)
-                                break;
-                            int s1 = i1 * 1 + i2 * 2 + i5 * 5 + i10 * 10 + i20 * 20 + i50 * 50;
-                            if (s1 != m)
-                                continue;
-                            ds.push_back({i1, i2, i5, i10, i20, i50});
-                        }
-                    }
-                }
-            }
-        }
+#define FOR(nom, num) for (int i##nom = 0; i##nom <= (num) / nom; ++i##nom) {
+#define ENDFOR                                                                                     \
+    }                                                                                              \
+    }                                                                                              \
+    }                                                                                              \
+    }                                                                                              \
+    }                                                                                              \
     }
+
+void m_decomps(int m) {
+    FOR(1, m)
+    FOR(2, m)
+    FOR(5, m)
+    FOR(10, m)
+    FOR(20, m)
+    FOR(50, m)
+    int s1 = i1 * 1 + i2 * 2 + i5 * 5 + i10 * 10 + i20 * 20 + i50 * 50;
+    if (s1 != m)
+        continue;
+    ds.push_back({i1, i2, i5, i10, i20, i50});
+    ENDFOR
 }
 
 bool check(decomp nd) {
@@ -52,49 +44,25 @@ bool check(decomp nd) {
     return false;
 }
 
-/* void debug() { */
-/*     for (auto d : ds) { */
-/*         int i1 = d[0], i2 = d[1], i5 = d[2], i10 = d[3], i20 = d[4], i50 = d[5]; */
-/*         printf("debug: 1*%d + 2*%d + 5*%d + 10*%d + 20*%d + 50*%d\n", i1, i2, i5, i10, i20, i50); */
-/*     } */
-/*     fflush(stdout); */
-/* } */
-
 bool solve(int n, int m) {
     ds.clear();
     m_decomps(m);
 
-    for (int i1 = 0; i1 <= 100 / 1; ++i1) {
-        if (i1 * 1 > n)
-            break;
-        for (int i2 = 0; i2 <= 100 / 2; ++i2) {
-            if (i2 * 2 > n)
-                break;
-            for (int i5 = 0; i5 <= 100 / 5; ++i5) {
-                if (i5 * 5 > n)
-                    break;
-                for (int i10 = 0; i10 <= 100 / 10; ++i10) {
-                    if (i10 * 10 > n)
-                        break;
-                    for (int i20 = 0; i20 <= 100 / 20; ++i20) {
-                        if (i20 * 20 > n)
-                            break;
-                        for (int i50 = 0; i50 <= 100 / 50; ++i50) {
-                            if (i50 * 50 > n)
-                                break;
-                            int s1 = i1 * 1 + i2 * 2 + i5 * 5 + i10 * 10 + i20 * 20 + i50 * 50;
-                            if (s1 != n)
-                                continue;
+    FOR(1, n)
+    FOR(2, n)
+    FOR(5, n)
+    FOR(10, n)
+    FOR(20, n)
+    FOR(50, n)
+    int s1 = i1 * 1 + i2 * 2 + i5 * 5 + i10 * 10 + i20 * 20 + i50 * 50;
+    if (s1 != n)
+        continue;
 
-                            decomp nd = {i1, i2, i5, i10, i20, i50};
-                            if (!check(nd))
-                                return false;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    decomp nd = {i1, i2, i5, i10, i20, i50};
+    if (!check(nd))
+        return false;
+    ENDFOR
+
     return true;
 }
 
