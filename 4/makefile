@@ -6,3 +6,12 @@ task: task.cpp
 
 debug: task
 	gdb task
+
+bf: bf.cpp
+	g++ bf.cpp -g -o bf
+
+debugbf: bf
+	gdb bf
+
+test: task bf
+	./test.sh
