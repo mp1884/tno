@@ -10,8 +10,11 @@ debug: task
 bf: bf.cpp
 	g++ bf.cpp -g -o bf
 
+bf2: bf2.c
+	gcc bf2.c -g -o bf2
+
 debugbf: bf
 	gdb bf
 
-test: task bf
+test: task bf bf2
 	./test.sh
